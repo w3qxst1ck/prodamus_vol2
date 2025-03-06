@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta, datetime
 
+import requests
 from fastapi import FastAPI, Request
 from starlette import status
 
@@ -19,6 +20,12 @@ app = FastAPI()
 async def root():
     return {"message": "some message"}
 
+
+@app.get("/test")
+async def root():
+    response = requests.get("https://httpbin.org/anything")
+    print(response)
+    return {"response": response}
 
 # ПОКУПКА ПОДПИСКИ
 @app.post("/success_pay", status_code=status.HTTP_200_OK)
