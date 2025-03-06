@@ -14,3 +14,4 @@ COPY ./services /app/services
 COPY apsched.py /app
 COPY main.py /app
 COPY settings.py /app
+COPY alembic.ini /app

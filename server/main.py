@@ -18,12 +18,14 @@ app = FastAPI()
 
 @app.get("/ping")
 async def root():
+    logger.info("Log from ping api")
     return {"message": "some message"}
 
 
 @app.get("/test")
 async def root():
     response = requests.get("https://httpbin.org/ip").json()
+    logger.warning("Log from test")
     print(response)
     return {"response": response}
 
