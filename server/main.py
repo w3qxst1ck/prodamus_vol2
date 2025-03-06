@@ -23,7 +23,7 @@ async def root():
 
 @app.get("/test")
 async def root():
-    response = requests.get("https://httpbin.org/anything")
+    response = requests.get("https://httpbin.org/ip").json()
     print(response)
     return {"response": response}
 
