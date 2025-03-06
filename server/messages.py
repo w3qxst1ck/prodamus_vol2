@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 import pytz
 import requests
 
-from schemas import User, UserRel
+from server.schemas import User, UserRel
 from settings import settings
-from logger import logger
+from server.logger import logger
 
 
 async def generate_invite_link(user: User) -> str:

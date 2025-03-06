@@ -3,9 +3,9 @@ from datetime import datetime
 
 from fastapi import Request
 from prodamuspy import ProdamusPy
-from logger import logger
 
-from schemas import ResponseResultPayment, ResponseResultAutoPay
+from server.logger import logger
+from server.schemas import ResponseResultPayment, ResponseResultAutoPay
 from settings import settings
 
 

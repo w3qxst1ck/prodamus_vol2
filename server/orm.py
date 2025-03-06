@@ -3,9 +3,9 @@ import datetime
 from sqlalchemy import select, update
 from sqlalchemy.orm import joinedload
 
-from database import async_session_factory
-import tables
-import schemas
+from server.database import async_session_factory
+import server.tables as tables
+import server.schemas as schemas
 
 
 class AsyncOrm:
