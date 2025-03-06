@@ -10,16 +10,9 @@ from routers import messages as ms
 from routers import keyboards as kb
 from services import prodamus
 from routers.utils import convert_date
-from loguru import logger
+from services.logger import logger
 
 router = Router()
-
-log_folder = "logs"
-if not os.path.exists(log_folder):
-    os.makedirs(log_folder)
-
-logger.remove()
-logger.add(f"{log_folder}/bot.log", format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {file}:{line} | {message}")
 
 
 @router.callback_query(lambda c: c.data == "back_to_start")

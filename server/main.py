@@ -16,7 +16,7 @@ from server.services import get_body_params_pay_success, get_body_params_auto_pa
 app = FastAPI()
 
 
-@app.get("/")
+@app.get("/ping")
 async def root():
     return {"message": "some message"}
 

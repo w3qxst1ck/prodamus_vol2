@@ -19,7 +19,7 @@ logger.add(
 )
 
 # запись в .log файл
-log_file_path = os.path.join(log_folder, "api.log")
+log_file_path = os.path.join(log_folder, "bot.log")
 logger.add(
     log_file_path,
     level="INFO",

@@ -8,6 +8,8 @@ services:
       - .env
     depends_on:
       - postgresdb
+    volumes:
+      - ./logs:/app/logs
 
   nginx:
     container_name: "nginx"
