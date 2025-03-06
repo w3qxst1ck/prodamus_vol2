@@ -4,13 +4,13 @@ from datetime import timedelta, datetime
 from fastapi import FastAPI, Request
 from starlette import status
 
-from server.settings import settings
-from logger import logger
+from settings import settings
+from server.logger import logger
 
-from orm import AsyncOrm
-from messages import send_error_message_to_user, send_invite_link_to_user, generate_invite_link, \
+from server.orm import AsyncOrm
+from server.messages import send_error_message_to_user, send_invite_link_to_user, generate_invite_link, \
     send_auto_pay_error_message_to_user, send_success_message_to_user, delete_user_from_channel, buy_subscription_error
-from services import get_body_params_pay_success, get_body_params_auto_pay
+from server.services import get_body_params_pay_success, get_body_params_auto_pay
 
 app = FastAPI()
 

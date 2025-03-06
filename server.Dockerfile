@@ -11,5 +11,6 @@ RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
 COPY ./server /app/server
 COPY ./database /app/database
+COPY settings.py /app
 
 CMD ["uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
