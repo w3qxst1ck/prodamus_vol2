@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 from fastapi import FastAPI, Request
 from starlette import status
 
-from settings import settings
+from server.settings import settings
 from logger import logger
 
 from orm import AsyncOrm
