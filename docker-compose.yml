@@ -1,12 +1,13 @@
 services:
-#  bot:
-#    container_name: "bot"
-#    build: ./
-#    command: sh -c "python main.py"
-#    env_file:
-#      - .env
-#    depends_on:
-#      - postgresdb
+  bot:
+    container_name: "bot"
+    build:
+      dockerfile: bot.Dockerfile
+    command: sh -c "python main.py"
+    env_file:
+      - .env
+    depends_on:
+      - postgresdb
 
   nginx:
     container_name: "nginx"
@@ -19,7 +20,8 @@ services:
 
   api:
     container_name: "api"
-    build: ./server
+    build:
+      dockerfile: server.Dockerfile
     depends_on:
       - postgresdb
     ports:
