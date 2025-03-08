@@ -61,7 +61,7 @@ async def start_bot() -> None:
     scheduler.start()
 
     dispatcher.include_routers(users.router)
-    # await init_models()
+    await init_models()
 
     await dispatcher.start_polling(bot)
 

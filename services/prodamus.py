@@ -10,7 +10,7 @@ def get_pay_link(tg_id: int) -> str:
     data = {
         "order_id": tg_id,
         "subscription": settings.sub_number,
-        "customer_extra": "Информация об оплачиваемой подписке",
+        # "customer_extra": "Информация об оплачиваемой подписке",
         "do": "link",
         "sys": "",
         # "products[0][name]": "Подписка на 1 мес.",

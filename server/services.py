@@ -5,7 +5,7 @@ from fastapi import Request
 from prodamuspy import ProdamusPy
 
 from server.logger import logger
-from server.schemas import ResponseResultPayment, ResponseResultAutoPay
+from server.payment import ResponseResultPayment, ResponseResultAutoPay
 from settings import settings
 
 
@@ -38,13 +38,6 @@ async def get_body_params_auto_pay(request: Request) -> ResponseResultAutoPay:
     body = await request.body()
     bodyDict = prodamus.parse(body.decode())
 
-    # логирование request body
-    if "error_code" in bodyDict["subscription"]:
-        log_message = ""
-        for k, v in bodyDict.items():
-            log_message += f"{k}: {v}\n"
-        logger.error(log_message)
-
     signIsGood = prodamus.verify(bodyDict, request.headers["sign"])
 
     result = ResponseResultAutoPay(
@@ -63,10 +56,7 @@ async def get_body_params_auto_pay(request: Request) -> ResponseResultAutoPay:
     )
 
     # type = "notification" / "action"
-    try:
-        result.action_type = bodyDict["subscription"]["type"]
-    except Exception:
-        logger.error(f"В запросе отсутствует ключ type\n{bodyDict}")
+    result.action_type = bodyDict["subscription"]["type"]
 
     # для усп. платежей action_code='auto_payment',
     # для деактивации action_code='deactivation'
@@ -83,9 +73,19 @@ async def get_body_params_auto_pay(request: Request) -> ResponseResultAutoPay:
     # ошибка при платеже
     if "error_code" in bodyDict["subscription"]:
         try:
+
+            # логирование request body
+            if "error_code" in bodyDict["subscription"]:
+                log_message = ""
+                for k, v in bodyDict.items():
+                    log_message += f"{k}: {v}\n"
+                logger.error(log_message)
+
+            # получаем errors из запроса
             result.error_code = bodyDict["subscription"]["error_code"]
             result.error = bodyDict["subscription"]["error"]
             result.current_attempt = bodyDict["subscription"]["current_attempt"]
+
         except Exception as e:
             logger.error(f"Ошибка при обработке НЕ успешного рекуррентного платежа:\n\n{e}")
 

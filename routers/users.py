@@ -74,7 +74,6 @@ async def start_handler(message: types.Message | types.CallbackQuery) -> None:
 @router.callback_query(lambda c: c.data == "main_menu")
 async def main_menu(message: types.Message | types.CallbackQuery) -> None:
     """Главное меню"""
-    logger.info("LOG from main menu")
     msg = "<b>Меню участника канала «Ежедневное питание | Sheva Nutrition»:</b>"
     user = await AsyncOrm.get_user_with_subscription_by_tg_id(str(message.from_user.id))
 
@@ -230,7 +229,7 @@ async def confirmation_unsubscribe(callback: types.CallbackQuery) -> None:
 
     if response.status_code == 200:
         # отмена подписки в БД
-        await AsyncOrm.disactivate_subscribe(subscription_id)
+        await AsyncOrm.deactivate_subscribe(subscription_id)
 
         msg = ms.get_cancel_subscribe_message(user_with_sub.subscription[0].expire_date)
         await callback.message.edit_text(msg)
