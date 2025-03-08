@@ -1,17 +1,16 @@
-import os
 from datetime import timedelta, datetime
 
 import requests
 from fastapi import FastAPI, Request
 from starlette import status
 
-from settings import settings
+from server.payment import ResponseResultPayment, ResponseResultAutoPay
 from server.logger import logger
-
-from server.orm import AsyncOrm
-from server.messages import send_error_message_to_user, send_invite_link_to_user, generate_invite_link, \
-    send_auto_pay_error_message_to_user, send_success_message_to_user, delete_user_from_channel, buy_subscription_error
 from server.services import get_body_params_pay_success, get_body_params_auto_pay
+from database.orm import AsyncOrm
+from server import messages as ms
+from settings import settings
+
 
 app = FastAPI()
 
@@ -29,22 +28,27 @@ async def root():
     print(response)
     return {"response": response}
 
+
 # ПОКУПКА ПОДПИСКИ
 @app.post("/success_pay", status_code=status.HTTP_200_OK)
 async def buy_subscription(request: Request):
-    response = await get_body_params_pay_success(request)
+    response: ResponseResultPayment = await get_body_params_pay_success(request)
 
     # проверка на успешный платеж
     if not(response.sing_is_good and response.payment_status == "success"):
-        await buy_subscription_error(int(response.tg_id))
-        logger.error(f"Не прошла покупка подписки у пользователя с tg id {response.tg_id}")
+        await ms.buy_subscription_error(int(response.tg_id))
+        logger.error(f"Ошибка при покупке подписки у пользователя tg_id {response.tg_id}")
 
     # успешная оплата
     else:
         user = await AsyncOrm.get_user_with_subscription_by_tg_id(response.tg_id)
 
+        # создаем и отправляем ссылку на вступление в группу
+        invite_link = await ms.generate_invite_link(user)
+        await ms.send_invite_link_to_user(int(user.tg_id), invite_link, expire_date=response.date_next_payment)
+
         # обновляем телефон
-        await AsyncOrm.update_user_phone(user.id, response.customer_phone)
+        await AsyncOrm.add_user_phone(user.id, response.customer_phone)
 
         # меняем дату окончания подписки
         await AsyncOrm.update_subscribe(
@@ -53,10 +57,6 @@ async def buy_subscription(request: Request):
             expire_date=response.date_next_payment + timedelta(days=1, hours=1),    # запас по времени 1 день и 1 час
             profile_id=response.profile_id
         )
-
-        # новая подписка
-        invite_link = await generate_invite_link(user)
-        await send_invite_link_to_user(int(user.tg_id), invite_link, expire_date=response.date_next_payment)
 
         # учет операции
         await AsyncOrm.add_operation(user.tg_id, "BUY_SUB", response.date_last_payment)
@@ -67,7 +67,7 @@ async def buy_subscription(request: Request):
 @app.post("/auto_pay", status_code=status.HTTP_200_OK)
 async def auto_pay_subscription(request: Request):
     """Прием автоплатежа по подписке"""
-    response = await get_body_params_auto_pay(request)
+    response: ResponseResultAutoPay = await get_body_params_auto_pay(request)
 
     # неуспешные автоплатежи
     if not response.sing_is_good or response.error:
@@ -80,7 +80,7 @@ async def auto_pay_subscription(request: Request):
 
         # оповещаем пользователя при первой неудачной попытке списания
         if response.current_attempt == "1" and response.action_type == "notification":
-            await send_auto_pay_error_message_to_user(user)
+            await ms.send_auto_pay_error_message_to_user(user)
 
         # при последней неудачной попытке списания и отмене подписки в продамусе
         if response.last_attempt == "yes" and response.action_code == "deactivation":
@@ -88,10 +88,10 @@ async def auto_pay_subscription(request: Request):
             await AsyncOrm.deactivate_subscription(user.id)
 
             # кикаем из канала
-            await delete_user_from_channel(settings.channel_id, int(user.tg_id))
+            await ms.delete_user_from_channel(settings.channel_id, int(user.tg_id))
 
             # оповещаем пользователя, что подписка кончилась
-            await send_error_message_to_user(int(user.tg_id))
+            await ms.send_error_message_to_user(int(user.tg_id))
 
             # учитываем отмену подписки
             await AsyncOrm.add_operation(user.tg_id, "AUTO_UN_SUB", datetime.now())
@@ -100,6 +100,9 @@ async def auto_pay_subscription(request: Request):
     elif response.action_type == "action" and response.action_code == "auto_payment":
         user = await AsyncOrm.get_user_with_subscription_by_tg_id(response.tg_id)
 
+        # оповещаем пользователя
+        await ms.send_success_message_to_user(int(response.tg_id), response.date_next_payment)
+
         # меняем дату окончания подписки
         await AsyncOrm.update_subscribe(
             subscription_id=user.subscription[0].id,
@@ -107,7 +110,6 @@ async def auto_pay_subscription(request: Request):
             expire_date=response.date_next_payment + timedelta(days=1, hours=1),  # запас по времени 1 день и 1 час
             profile_id=response.profile_id
         )
-        await send_success_message_to_user(int(response.tg_id), response.date_next_payment)
 
         # учет операции
         await AsyncOrm.add_operation(user.tg_id, "AUTO_PAY", response.date_last_payment)

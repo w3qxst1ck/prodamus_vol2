@@ -14,13 +14,6 @@ from database import tables
 class AsyncOrm:
 
     @staticmethod
-    async def create_tables():
-        """Создание таблиц"""
-        async with async_engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
-            await conn.run_sync(Base.metadata.create_all)
-
-    @staticmethod
     async def create_user(new_user: schemas.UserAdd) -> int:
         """Создание пользователя и подписки в базе данных"""
         async with async_session_factory() as session:
@@ -72,7 +65,7 @@ class AsyncOrm:
             return user
 
     @staticmethod
-    async def disactivate_subscribe(subscription_id: int) -> None:
+    async def deactivate_subscribe(subscription_id: int) -> None:
         """Отмена подписки"""
         async with async_session_factory() as session:
             query = update(tables.Subscription)\
@@ -84,33 +77,33 @@ class AsyncOrm:
             await session.commit()
 
     @staticmethod
-    async def update_subscribe(subscription_id: int) -> None:
+    async def update_subscribe(subscription_id: int,
+                               start_date: datetime.datetime,
+                               expire_date: datetime.datetime,
+                               profile_id: str) -> None:
         """Оформление подписки"""
         async with async_session_factory() as session:
-            start_date = (datetime.datetime.now(tz=pytz.timezone("Europe/Moscow"))).date()
-            expire_date = (datetime.datetime.now(tz=pytz.timezone("Europe/Moscow")) + datetime.timedelta(days=30)).date()
-
             query = update(tables.Subscription) \
                 .where(tables.Subscription.id == subscription_id) \
-                .values(active=True, start_date=start_date, expire_date=expire_date)
+                .values(active=True, start_date=start_date, expire_date=expire_date, profile_id=profile_id)
 
             await session.execute(query)
             await session.flush()
             await session.commit()
 
-    @staticmethod
-    async def get_subscription(subscription_id: int) -> schemas.Subscription | None:
-        """Оформление подписки"""
-        async with async_session_factory() as session:
-            query = select(tables.Subscription).where(tables.Subscription.id == subscription_id)
-
-            result = await session.execute(query)
-            row = result.scalars().first()
-            if row:
-                subscription = schemas.Subscription.model_validate(row, from_attributes=True)
-                return subscription
-            else:
-                return
+    # @staticmethod
+    # async def get_subscription(subscription_id: int) -> schemas.Subscription | None:
+    #     """Оформление подписки"""
+    #     async with async_session_factory() as session:
+    #         query = select(tables.Subscription).where(tables.Subscription.id == subscription_id)
+    #
+    #         result = await session.execute(query)
+    #         row = result.scalars().first()
+    #         if row:
+    #             subscription = schemas.Subscription.model_validate(row, from_attributes=True)
+    #             return subscription
+    #         else:
+    #             return
 
     @staticmethod
     async def get_all_users() -> List[schemas.User]:
@@ -150,7 +143,12 @@ class AsyncOrm:
 
     @staticmethod
     async def add_operation(tg_id: str, operation_type: str, date: datetime.datetime) -> None:
-        """Создание операции пользователя BUY_SUB/AUTO_PAY/UN_SUB"""
+        """Создание операции пользователя
+            BUY_SUB - покупка подписки
+            AUTO_PAY - автопродление подпсики
+            UN_SUB - отмена подписки пользователем
+            AUTO_UN_SUB - отмена подписки автоматически (при неоплате)
+        """
         async with async_session_factory() as session:
             operation = tables.Operation(
                 tg_id=tg_id,
@@ -159,5 +157,29 @@ class AsyncOrm:
             )
             session.add(operation)
 
+            await session.flush()
+            await session.commit()
+
+    @staticmethod
+    async def add_user_phone(user_id: int, phone_number: str) -> None:
+        """Запись телефона пользователю"""
+        async with async_session_factory() as session:
+            query = update(tables.User) \
+                .where(tables.User.id == user_id) \
+                .values(phone=phone_number)
+
+            await session.execute(query)
+            await session.flush()
+            await session.commit()
+
+    @staticmethod
+    async def deactivate_subscription(user_id: int) -> None:
+        """Деактивация подписки у пользователя"""
+        async with async_session_factory() as session:
+            query = update(tables.Subscription) \
+                .where(tables.Subscription.user_id == user_id) \
+                .values(active=False, expire_date=None)
+
+            await session.execute(query)
             await session.flush()
             await session.commit()

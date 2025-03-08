@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import pytz
 import requests
 
-from server.schemas import User, UserRel
+from database.schemas import User, UserRel
 from settings import settings
 from server.logger import logger
 
@@ -76,7 +76,7 @@ async def buy_subscription_error(chat_id: int) -> None:
     """Ошибка при неуспешной покупке подписки"""
     text = "⛔️ Ошибка при оплате подписки.\n\n " \
            "Возможно у вас не хватает средств на балансе, либо ваша карта больше не действительна.\n\n" \
-           "Попробуйте оформить подписку заново"
+           "Попробуйте оформить подписку заново позже"
 
     response = requests.post(
         url='https://api.telegram.org/bot{0}/{1}'.format(settings.bot_token, "sendMessage"),

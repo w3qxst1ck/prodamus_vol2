@@ -23,7 +23,7 @@ async def check_sub_status(bot: aiogram.Bot) -> None:
         subscription = await AsyncOrm.get_subscription_by_user_id(user.id)
         if subscription.active:
             if subscription.expire_date < datetime.datetime.now():  # запас по времени 1 день
-                await AsyncOrm.disactivate_subscribe(subscription.id)
+                await AsyncOrm.deactivate_subscribe(subscription.id)
 
                 # оповещение пользователя
                 try:
