@@ -17,7 +17,6 @@ app = FastAPI()
 
 @app.get("/ping")
 async def root():
-    logger.info("Log from ping api")
     return {"message": "some message"}
 
 
