@@ -121,8 +121,6 @@ async def send_auto_pay_error_message_to_user(user: UserRel) -> None:
     response = requests.post(
         url='https://api.telegram.org/bot{0}/{1}'.format(settings.bot_token, "sendMessage"),
         data={
-            # TODO тестовый chat_id
-            # 'chat_id': user.tg_id,
             'chat_id': settings.admins[0],
             'parse_mode': "HTML",
             'text': msg_for_admin,
