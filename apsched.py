@@ -5,12 +5,12 @@ from database.orm import AsyncOrm
 from services.channel import kick_user_from_channel
 
 
-async def run_every_hour(bot: aiogram.Bot) -> None:
+async def check_subscriptions_status(bot: aiogram.Bot) -> None:
     """Выполняется каждый час"""
     await check_sub_status(bot)
 
 
-async def run_every_day(bot: aiogram.Bot) -> None:
+async def kick_inactive_users(bot: aiogram.Bot) -> None:
     """Выполняется каждый день"""
     await kick_users_with_not_active_sub(bot)
 
@@ -40,7 +40,8 @@ async def kick_users_with_not_active_sub(bot: aiogram.Bot) -> None:
     for user in users:
         subscription = await AsyncOrm.get_subscription_by_user_id(user.id)
 
-        if subscription.expire_date is not None and subscription.expire_date < datetime.datetime.now():
+        if subscription.expire_date is not None and subscription.expire_date < datetime.datetime.now() \
+                and subscription.active is False:
             # обнуляем дату expire_date
             await AsyncOrm.remove_expire_date(subscription.id)
 

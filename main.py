@@ -50,12 +50,12 @@ async def start_bot() -> None:
     # SCHEDULER
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
 
-    # удаление польз. с неактивными подписками из канала
-    scheduler.add_job(apsched.run_every_day, trigger="cron", year='*', month='*', day="*", hour="*", minute=2,
-                      second=0, start_date=datetime.now(), kwargs={"bot": bot})
-
     # проверка статусов подписки
-    scheduler.add_job(apsched.run_every_hour, trigger="cron", year='*', month='*', day="*", hour="*", minute=0,
+    scheduler.add_job(apsched.check_subscriptions_status, trigger="cron", year='*', month='*', day="*", hour="*",
+                      minute=0, second=0, start_date=datetime.now(), kwargs={"bot": bot})
+
+    # удаление польз. с неактивными подписками из канала
+    scheduler.add_job(apsched.kick_inactive_users, trigger="cron", year='*', month='*', day="*", hour="*", minute=10,
                       second=0, start_date=datetime.now(), kwargs={"bot": bot})
 
     scheduler.start()
