@@ -74,7 +74,7 @@ async def start_handler(message: types.Message | types.CallbackQuery) -> None:
 @router.callback_query(lambda c: c.data == "main_menu")
 async def main_menu(message: types.Message | types.CallbackQuery) -> None:
     """Главное меню"""
-    msg = "<b>Меню участника канала «Ежедневное питание | Sheva Nutrition»:</b>"
+    msg = "<b>Меню участника канала «Ежедневные рецепты | Ольга Гурская:</b>"
     user = await AsyncOrm.get_user_with_subscription_by_tg_id(str(message.from_user.id))
 
     # подписка активна
