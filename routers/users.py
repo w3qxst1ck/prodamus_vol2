@@ -33,7 +33,7 @@ async def start_handler(message: types.Message | types.CallbackQuery) -> None:
                 (user_with_sub.subscription[0].expire_date is not None and
                  user_with_sub.subscription[0].expire_date.date() >= datetime.datetime.now().date()):
 
-            msg = "<b>Меню участника канала «Ежедневное питание | Sheva Nutrition»:</b>"
+            msg = "<b>Меню участника канала «Ежедневные рецепты | Ольга Гурская:</b>"
             if type(message) == types.Message:
                 await message.answer(msg, reply_markup=kb.main_menu_keyboard(sub_is_active=True).as_markup())
             else:

@@ -45,7 +45,7 @@ def podpiska_menu_keyboard(active_sub: bool, need_back_button: bool = True) -> I
         keyboard.row(InlineKeyboardButton(text="Оформить подписку", callback_data=f"subscribe"))
 
     if need_back_button:
-        keyboard.row(InlineKeyboardButton(text="<< назад", callback_data="main_menu"))
+        keyboard.row(InlineKeyboardButton(text="🔙 назад", callback_data="main_menu"))
     keyboard.adjust(1)
 
     return keyboard
@@ -54,7 +54,7 @@ def podpiska_menu_keyboard(active_sub: bool, need_back_button: bool = True) -> I
 def back_keyboard(callback_data: str) -> InlineKeyboardBuilder:
     """Клавиатура для возвращения назад"""
     keyboard = InlineKeyboardBuilder()
-    keyboard.row(InlineKeyboardButton(text="<< назад", callback_data=f"{callback_data}"))
+    keyboard.row(InlineKeyboardButton(text="🔙 назад", callback_data=f"{callback_data}"))
     return keyboard
 
 
@@ -73,10 +73,10 @@ def payment_keyboard(payment_link: str = None, need_back_button: bool = True, ne
     if need_pay_link:
         keyboard.row(InlineKeyboardButton(text="💵 Ссылка на оплату", url=payment_link))
 
-    keyboard.row(InlineKeyboardButton(text="Публичная оферта", url="https://www.google.ru/?hl=ru"))
+    keyboard.row(InlineKeyboardButton(text="Публичная оферта", url="https://telegra.ph/PUBLICHNAYA-OFERTA-03-10-5"))
 
     if need_back_button:
-        keyboard.row(InlineKeyboardButton(text="<< назад", callback_data="back_to_start"))
+        keyboard.row(InlineKeyboardButton(text="🔙 назад", callback_data="back_to_start"))
 
     keyboard.adjust(1)
 
@@ -102,7 +102,7 @@ def yes_no_keyboard(need_back_button: bool = True) -> InlineKeyboardBuilder:
     keyboard.row(InlineKeyboardButton(text="Нет", callback_data="callback_podpiska"))
 
     if need_back_button:
-        keyboard.row(InlineKeyboardButton(text="<< назад", callback_data="callback_podpiska"))
+        keyboard.row(InlineKeyboardButton(text="🔙 назад", callback_data="callback_podpiska"))
 
     keyboard.adjust(2)
 
