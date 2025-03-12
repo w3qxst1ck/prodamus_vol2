@@ -52,10 +52,10 @@ async def start_bot() -> None:
 
     # проверка статусов подписки
     scheduler.add_job(apsched.check_subscriptions_status, trigger="cron", year='*', month='*', day="*", hour="*",
-                      minute=0, second=0, start_date=datetime.now(), kwargs={"bot": bot})
+                      minute="*", second=0, start_date=datetime.now(), kwargs={"bot": bot})
 
     # удаление польз. с неактивными подписками из канала
-    scheduler.add_job(apsched.kick_inactive_users, trigger="cron", year='*', month='*', day="*", hour="*", minute=10,
+    scheduler.add_job(apsched.kick_inactive_users, trigger="cron", year='*', month='*', day="*", hour="*", minute="*",
                       second=0, start_date=datetime.now(), kwargs={"bot": bot})
 
     scheduler.start()

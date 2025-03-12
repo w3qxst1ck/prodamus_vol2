@@ -84,5 +84,5 @@ def get_cancel_subscribe_message(expire_date: datetime.datetime) -> str:
 def get_vopros_message() -> str:
     """Help message"""
     message = "Если у тебя есть какие-то технические вопросы или проблемы с оплатой напиши моему менеджеру " \
-              "@andrey_visman - он поможет с вашей проблемой или ответит на ваши вопросы."
+              "@andrey_vismon - он поможет с вашей проблемой или ответит на ваши вопросы."
     return message
