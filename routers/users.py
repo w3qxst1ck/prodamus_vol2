@@ -11,6 +11,7 @@ from routers import keyboards as kb
 from services import prodamus
 from routers.utils import convert_date
 from services.logger import logger
+from settings import settings
 
 router = Router()
 
@@ -22,6 +23,8 @@ async def start_handler(message: types.Message | types.CallbackQuery) -> None:
     # проверка наличия пользователя
     tg_id = str(message.from_user.id)
     user = await AsyncOrm.get_user_by_tg_id(tg_id)
+
+    is_admin: bool = tg_id in settings.admins
 
     # уже зарегистрирован
     if user:
@@ -35,9 +38,11 @@ async def start_handler(message: types.Message | types.CallbackQuery) -> None:
 
             msg = "<b>Меню участника канала «Ежедневные рецепты | Ольга Гурская:</b>"
             if type(message) == types.Message:
-                await message.answer(msg, reply_markup=kb.main_menu_keyboard(sub_is_active=True).as_markup())
+                await message.answer(msg, reply_markup=kb.main_menu_keyboard(sub_is_active=True,
+                                                                             is_admin=is_admin).as_markup())
             else:
-                await message.message.edit_text(msg, reply_markup=kb.main_menu_keyboard(sub_is_active=True).as_markup())
+                await message.message.edit_text(msg, reply_markup=kb.main_menu_keyboard(sub_is_active=True,
+                                                                                        is_admin=is_admin).as_markup())
 
         # подписка неактивна
         else:
@@ -77,6 +82,8 @@ async def main_menu(message: types.Message | types.CallbackQuery) -> None:
     msg = "<b>Меню участника канала «Ежедневные рецепты | Ольга Гурская:</b>"
     user = await AsyncOrm.get_user_with_subscription_by_tg_id(str(message.from_user.id))
 
+    is_admin: bool = str(message.from_user.id) in settings.admins
+
     # подписка активна
     if user.subscription[0].active:
         sub_is_active = True
@@ -91,9 +98,9 @@ async def main_menu(message: types.Message | types.CallbackQuery) -> None:
         sub_is_active = False
 
     if type(message) == types.Message:
-        await message.answer(msg, reply_markup=kb.main_menu_keyboard(sub_is_active).as_markup())
+        await message.answer(msg, reply_markup=kb.main_menu_keyboard(sub_is_active, is_admin).as_markup())
     else:
-        await message.message.edit_text(msg, reply_markup=kb.main_menu_keyboard(sub_is_active).as_markup())
+        await message.message.edit_text(msg, reply_markup=kb.main_menu_keyboard(sub_is_active, is_admin).as_markup())
 
 
 @router.message(Command("podpiska"))

@@ -183,3 +183,39 @@ class AsyncOrm:
             await session.execute(query)
             await session.flush()
             await session.commit()
+
+    @staticmethod
+    async def get_all_tg_ids() -> list[str]:
+        """Получение списка tg_id всех пользователей"""
+        async with async_session_factory() as session:
+            query = select(tables.User.tg_id)
+
+            result = await session.execute(query)
+            rows = result.scalars().all()
+
+            return rows
+
+    @staticmethod
+    async def get_inactive_users_tg_ids() -> list[str]:
+        """Получение списка tg_id всех пользователей с неактивной подпиской"""
+        async with async_session_factory() as session:
+            query = select(tables.Subscription.user_id).where(tables.Subscription.active == False)
+            result = await session.execute(query)
+            users_ids = result.scalars().all()
+
+            query = select(tables.User.tg_id).filter(tables.User.id.in_(users_ids))
+            result = await session.execute(query)
+            users_tg_ids = result.scalars().all()
+
+            return users_tg_ids
+
+    @staticmethod
+    async def get_unsub_tg_ids() -> list[str]:
+        """Получение списка tg_id отписавшихся пользователей"""
+        async with async_session_factory() as session:
+            query = select(tables.Operation.tg_id).where(tables.Operation.type == "UN_SUB")
+
+            result = await session.execute(query)
+            rows = result.scalars().all()
+
+            return list(set(rows))
