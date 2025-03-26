@@ -12,7 +12,7 @@ import apsched
 
 from database.database import async_engine
 from database.tables import Base
-from routers import users
+from routers import users, admin
 
 from settings import settings
 
@@ -60,7 +60,7 @@ async def start_bot() -> None:
 
     scheduler.start()
 
-    dispatcher.include_routers(users.router)
+    dispatcher.include_routers(users.router, admin.router)
     # await init_models()
 
     await dispatcher.start_polling(bot)
