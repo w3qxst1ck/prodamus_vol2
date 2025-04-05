@@ -11,6 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY ./database /app/database
 COPY ./routers /app/routers
 COPY ./services /app/services
+COPY ./middlewares /app/middlewares
 COPY apsched.py /app
 COPY main.py /app
 COPY settings.py /app

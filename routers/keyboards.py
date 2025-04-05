@@ -139,10 +139,18 @@ def admin_users_group() -> InlineKeyboardBuilder:
     return keyboard
 
 
-def skip_or_cancel_keyboard() -> InlineKeyboardBuilder:
-    """Пропуск действия или отмена state"""
+def skip_message_or_cancel_keyboard() -> InlineKeyboardBuilder:
+    """Пропуск отправки сообщения или отмена state"""
     keyboard = InlineKeyboardBuilder()
-    keyboard.row(InlineKeyboardButton(text="Пропустить", callback_data="button_skip"))
+    keyboard.row(InlineKeyboardButton(text="Пропустить", callback_data="button_skip_message"))
+    keyboard.row(InlineKeyboardButton(text="❌ Отмена", callback_data="button_cancel"))
+    return keyboard
+
+
+def skip_media_or_cancel_keyboard() -> InlineKeyboardBuilder:
+    """Пропуск отправки медиа или отмена state"""
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(InlineKeyboardButton(text="Пропустить", callback_data="button_skip_media"))
     keyboard.row(InlineKeyboardButton(text="❌ Отмена", callback_data="button_cancel"))
     return keyboard
 
